@@ -1,0 +1,68 @@
+import type { CalculatorInputs } from '~/types/calculator'
+import { DEFAULT_INPUTS } from '~/types/calculator'
+
+const PARAM_MAP: Record<string, keyof CalculatorInputs> = {
+  p: 'propertyPrice',
+  r: 'monthlyRent',
+  c: 'currency',
+  dp: 'downPaymentPercent',
+  rate: 'mortgageRate',
+  term: 'mortgageTermYears',
+  stay: 'holdingPeriodYears',
+  ptax: 'propertyTaxRate',
+  app: 'homeAppreciationRate',
+  ri: 'rentIncreaseRate',
+  inv: 'investmentReturnRate',
+  ccbuy: 'buyingClosingCostPercent',
+  ccsell: 'sellingClosingCostPercent',
+  maint: 'maintenanceCostPercent',
+  ins: 'insurancePercent',
+  hoa: 'monthlyHoaFees',
+}
+
+export function useShareUrl() {
+  const inputs = useState<CalculatorInputs>('calculatorInputs')
+
+  const encodeToUrl = (): string => {
+    const params = new URLSearchParams()
+    for (const [shortKey, longKey] of Object.entries(PARAM_MAP)) {
+      const value = inputs.value[longKey]
+      if (value !== DEFAULT_INPUTS[longKey]) {
+        params.set(shortKey, String(value))
+      }
+    }
+    return `${window.location.origin}${window.location.pathname}?${params.toString()}`
+  }
+
+  const decodeFromUrl = () => {
+    if (import.meta.server) return
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.size === 0) return
+
+    const updates: Partial<CalculatorInputs> = {}
+    for (const [shortKey, longKey] of Object.entries(PARAM_MAP)) {
+      const value = params.get(shortKey)
+      if (value !== null) {
+        (updates as any)[longKey] = longKey === 'currency' ? value : Number.parseFloat(value)
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      inputs.value = { ...inputs.value, ...updates }
+    }
+  }
+
+  const copyShareUrl = async (): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(encodeToUrl())
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  onMounted(() => decodeFromUrl())
+
+  return { encodeToUrl, decodeFromUrl, copyShareUrl }
+}
