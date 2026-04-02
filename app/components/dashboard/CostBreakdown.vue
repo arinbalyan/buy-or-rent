@@ -22,7 +22,7 @@
 import type { TooltipItem } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
-import { formatAxisLabel } from '~/utils/chart-helpers'
+import { formatAxisLabel } from '~/utils/format'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 

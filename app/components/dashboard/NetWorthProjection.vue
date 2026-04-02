@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { Line } from 'vue-chartjs'
 import { CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js'
-import { formatAxisLabel } from '~/utils/chart-helpers'
+import { formatAxisLabel } from '~/utils/format'
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
 

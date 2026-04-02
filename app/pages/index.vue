@@ -91,55 +91,55 @@
       Frequently Asked Questions
     </h2>
     <div class="space-y-4">
-      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        <summary class="cursor-pointer list-none p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-primary))]">
+      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-200 hover:border-[rgb(var(--color-accent))]/50">
+        <summary class="cursor-pointer p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-accent))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-accent))]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-bg))]">
           <span class="flex items-center justify-between">
             Is it better to buy or rent a property?
-            <span class="ml-2 text-[rgb(var(--color-fg-muted))] transition-transform group-open:rotate-180">▾</span>
+            <span class="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-[rgb(var(--color-fg-muted))] transition-all duration-200 group-open:rotate-180 group-hover:text-[rgb(var(--color-accent))]">▾</span>
           </span>
         </summary>
         <div class="px-5 pb-5 text-sm leading-relaxed text-[rgb(var(--color-fg-muted))]">
           The decision depends on your financial situation, how long you plan to stay, local market conditions, and personal preferences. Our calculator analyzes total costs including mortgage, maintenance, property taxes, appreciation, and opportunity costs to give you a personalized recommendation.
         </div>
       </details>
-      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        <summary class="cursor-pointer list-none p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-primary))]">
+      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-200 hover:border-[rgb(var(--color-accent))]/50">
+        <summary class="cursor-pointer p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-accent))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-accent))]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-bg))]">
           <span class="flex items-center justify-between">
             What is the break-even point in a buy vs rent analysis?
-            <span class="ml-2 text-[rgb(var(--color-fg-muted))] transition-transform group-open:rotate-180">▾</span>
+            <span class="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-[rgb(var(--color-fg-muted))] transition-all duration-200 group-open:rotate-180 group-hover:text-[rgb(var(--color-accent))]">▾</span>
           </span>
         </summary>
         <div class="px-5 pb-5 text-sm leading-relaxed text-[rgb(var(--color-fg-muted))]">
           The break-even point is the number of years after which buying becomes more financially advantageous than renting. Before this point, renting is typically cheaper. After this point, the equity built through homeownership and property appreciation usually outweigh the costs of buying.
         </div>
       </details>
-      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        <summary class="cursor-pointer list-none p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-primary))]">
+      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-200 hover:border-[rgb(var(--color-accent))]/50">
+        <summary class="cursor-pointer p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-accent))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-accent))]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-bg))]">
           <span class="flex items-center justify-between">
             How does the buy vs rent calculator work?
-            <span class="ml-2 text-[rgb(var(--color-fg-muted))] transition-transform group-open:rotate-180">▾</span>
+            <span class="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-[rgb(var(--color-fg-muted))] transition-all duration-200 group-open:rotate-180 group-hover:text-[rgb(var(--color-accent))]">▾</span>
           </span>
         </summary>
         <div class="px-5 pb-5 text-sm leading-relaxed text-[rgb(var(--color-fg-muted))]">
           Enter your property price, down payment, mortgage rate, rental costs, and other financial details. The calculator compares the total cost of buying (including mortgage, taxes, maintenance, and opportunity cost of your down payment) against renting (including rent increases and investment of saved capital) over time.
         </div>
       </details>
-      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        <summary class="cursor-pointer list-none p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-primary))]">
+      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-200 hover:border-[rgb(var(--color-accent))]/50">
+        <summary class="cursor-pointer p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-accent))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-accent))]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-bg))]">
           <span class="flex items-center justify-between">
             What factors should I consider when deciding to buy or rent?
-            <span class="ml-2 text-[rgb(var(--color-fg-muted))] transition-transform group-open:rotate-180">▾</span>
+            <span class="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-[rgb(var(--color-fg-muted))] transition-all duration-200 group-open:rotate-180 group-hover:text-[rgb(var(--color-accent))]">▾</span>
           </span>
         </summary>
         <div class="px-5 pb-5 text-sm leading-relaxed text-[rgb(var(--color-fg-muted))]">
           Key factors include: property price and down payment, mortgage interest rate, expected property appreciation, annual maintenance costs, property taxes, current rent and expected rent increases, your investment return rate if you invested the down payment instead, and how long you plan to stay in the property.
         </div>
       </details>
-      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        <summary class="cursor-pointer list-none p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-primary))]">
+      <details class="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-200 hover:border-[rgb(var(--color-accent))]/50">
+        <summary class="cursor-pointer p-5 text-base font-medium text-[rgb(var(--color-fg))] transition-colors hover:text-[rgb(var(--color-accent))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-accent))]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-bg))]">
           <span class="flex items-center justify-between">
             Does this calculator support multiple currencies?
-            <span class="ml-2 text-[rgb(var(--color-fg-muted))] transition-transform group-open:rotate-180">▾</span>
+            <span class="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-[rgb(var(--color-fg-muted))] transition-all duration-200 group-open:rotate-180 group-hover:text-[rgb(var(--color-accent))]">▾</span>
           </span>
         </summary>
         <div class="px-5 pb-5 text-sm leading-relaxed text-[rgb(var(--color-fg-muted))]">
