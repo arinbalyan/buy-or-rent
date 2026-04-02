@@ -29,8 +29,7 @@
 </template>
 
 <script setup lang="ts">
-const { result } = useCalculator()
-const { inputs } = useCalculator()
+const { result, inputs } = useCalculator()
 
 const breakEvenPercent = computed(() => {
   if (result.value.breakEvenYears === null) return 0

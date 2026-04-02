@@ -123,15 +123,16 @@ const formatNumber = (n: number) => n.toLocaleString('en-US')
 
 const onPriceInput = (e: Event) => {
   const val = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, '')
-  inputs.value.propertyPrice = Number(val) || 0
+  inputs.value.propertyPrice = Math.max(0, Math.min(50000000, Number(val) || 0))
 }
 
 const onRentInput = (e: Event) => {
   const val = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, '')
-  inputs.value.monthlyRent = Number(val) || 0
+  inputs.value.monthlyRent = Math.max(0, Math.min(100000, Number(val) || 0))
 }
 
 const resetDefaults = () => {
-  inputs.value = { ...DEFAULT_INPUTS }
+  const currentCurrency = inputs.value.currency
+  inputs.value = { ...DEFAULT_INPUTS, currency: currentCurrency }
 }
 </script>

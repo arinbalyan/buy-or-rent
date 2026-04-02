@@ -1,6 +1,6 @@
 import type { Currency } from '~/types/currency'
 
-const CURRENCIES: Currency[] = [
+export const CURRENCIES: Currency[] = [
   { code: 'USD', name: 'US Dollar', symbol: '$', decimals: 2, flag: '🇺🇸' },
   { code: 'EUR', name: 'Euro', symbol: '€', decimals: 2, flag: '🇪🇺' },
   { code: 'GBP', name: 'British Pound', symbol: '£', decimals: 2, flag: '🇬🇧' },
@@ -60,7 +60,9 @@ export function useCurrency() {
     const code = currencyCode ?? selectedCurrency.value
     const currency = currencies.find(c => c.code === code) ?? currencies[0]
 
-    return new Intl.NumberFormat('en-US', {
+    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US'
+
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: code,
       minimumFractionDigits: currency.decimals,

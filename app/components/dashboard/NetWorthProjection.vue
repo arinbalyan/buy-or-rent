@@ -10,11 +10,13 @@
 <script setup lang="ts">
 import { Line } from 'vue-chartjs'
 import { CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js'
+import { formatAxisLabel } from '~/utils/chart-helpers'
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
 
 const { result, inputs } = useCalculator()
 const { isDark } = useTheme()
+const { currentCurrency } = useCurrency()
 
 const chartData = computed(() => {
   const labels: string[] = []
@@ -60,12 +62,7 @@ const chartOptions = computed(() => ({
     y: {
       ticks: {
         color: isDark.value ? '#9ca3af' : '#6b7280',
-        callback: (value: number | string) => {
-          const v = Number(value)
-          if (Math.abs(v) >= 1e6) return `$${(v / 1e6).toFixed(0)}M`
-          if (Math.abs(v) >= 1e3) return `$${(v / 1e3).toFixed(0)}K`
-          return `$${v}`
-        },
+        callback: (value: number | string) => formatAxisLabel(value, currentCurrency.value.symbol),
       },
       grid: { color: isDark.value ? '#374151' : '#e5e7eb' },
     },

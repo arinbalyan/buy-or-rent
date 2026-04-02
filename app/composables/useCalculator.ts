@@ -1,5 +1,5 @@
 import type { CalculatorInputs, CalculationResult, Insight } from '~/types/calculator'
-import { calculateBuyingCosts, calculateRentingCosts } from '~/utils/financial'
+import { calculateBreakEven, calculateBuyingCosts, calculateRentingCosts } from '~/utils/financial'
 
 export function useCalculator() {
   const inputs = useState<CalculatorInputs>('calculatorInputs', () => ({
@@ -19,7 +19,10 @@ export function useCalculator() {
     maintenanceCostPercent: 1,
     insurancePercent: 0.5,
     monthlyHoaFees: 0,
+    taxRate: 0,
+    renterInsurancePercent: 1,
   }))
+  const { currentCurrency } = useCurrency()
 
   const result = computed<CalculationResult>(() => {
     const i = inputs.value
@@ -38,6 +41,7 @@ export function useCalculator() {
       maintenanceCostPercent: i.maintenanceCostPercent,
       insurancePercent: i.insurancePercent,
       monthlyHoaFees: i.monthlyHoaFees,
+      taxRate: i.taxRate,
     })
 
     const renting = calculateRentingCosts({
@@ -47,6 +51,7 @@ export function useCalculator() {
       holdingPeriodYears: i.holdingPeriodYears,
       propertyPrice: i.propertyPrice,
       downPaymentPercent: i.downPaymentPercent,
+      renterInsurancePercent: i.renterInsurancePercent,
     })
 
     const totalSavings = renting.totalCost - buying.totalCost
@@ -58,23 +63,35 @@ export function useCalculator() {
     const absSavings = Math.abs(totalSavings)
     const confidence = Math.min(100, Math.round((absSavings / Math.max(buying.totalCost, renting.totalCost)) * 100))
 
-    const breakEvenMonth = null as number | null
+    const buyingMonthlyCumulative: number[] = []
+    const rentingMonthlyCumulative: number[] = []
+    let buyCumulative = buying.initialCosts
+    let rentCumulative = renting.initialCosts
+    const months = i.holdingPeriodYears * 12
+    for (let m = 0; m < months; m++) {
+      buyCumulative += buying.monthlyPayments[m] ?? 0
+      rentCumulative += renting.monthlyPayments[m] ?? 0
+      buyingMonthlyCumulative.push(buyCumulative)
+      rentingMonthlyCumulative.push(rentCumulative)
+    }
+    const breakEvenMonth = calculateBreakEven(buyingMonthlyCumulative, rentingMonthlyCumulative)
 
     const insights = generateInsights({
       verdict,
       totalSavings,
       monthlySavings,
-      breakEvenYears: breakEvenMonth ? breakEvenMonth / 12 : null,
+      breakEvenYears: breakEvenMonth !== null ? breakEvenMonth / 12 : null,
       holdingPeriodYears: i.holdingPeriodYears,
       equity: buying.equityBuilt[buying.equityBuilt.length - 1] ?? 0,
       downPayment: i.propertyPrice * i.downPaymentPercent / 100,
       investmentReturn: renting.investedSavings[renting.investedSavings.length - 1] ?? 0,
+      currencySymbol: currentCurrency.value.symbol,
     })
 
     return {
       verdict,
       confidence,
-      breakEvenYears: breakEvenMonth ? breakEvenMonth / 12 : null,
+      breakEvenYears: breakEvenMonth !== null ? breakEvenMonth / 12 : null,
       buying: {
         ...buying,
       },
@@ -102,17 +119,28 @@ interface InsightParams {
   equity: number
   downPayment: number
   investmentReturn: number
+  currencySymbol: string
 }
 
 function generateInsights(params: InsightParams): Insight[] {
   const insights: Insight[] = []
-  const { verdict, totalSavings, monthlySavings, breakEvenYears, holdingPeriodYears, equity, downPayment, investmentReturn } = params
+  const {
+    verdict,
+    totalSavings,
+    monthlySavings,
+    breakEvenYears,
+    holdingPeriodYears,
+    equity,
+    downPayment,
+    investmentReturn,
+    currencySymbol,
+  } = params
 
   insights.push({
     type: verdict === 'buy' ? 'total' : 'total',
     icon: verdict === 'buy' ? '🏠' : '🔑',
     title: verdict === 'buy' ? 'Buying saves money' : 'Renting saves money',
-    description: `Over ${holdingPeriodYears} years, ${verdict === 'buy' ? 'buying' : 'renting'} saves you ${formatInsightValue(Math.abs(totalSavings))}`,
+    description: `Over ${holdingPeriodYears} years, ${verdict === 'buy' ? 'buying' : 'renting'} saves you ${formatInsightValue(Math.abs(totalSavings), currencySymbol)}`,
     value: totalSavings,
     severity: verdict === 'buy' ? 'positive' : 'negative',
   })
@@ -121,7 +149,7 @@ function generateInsights(params: InsightParams): Insight[] {
     type: 'monthly',
     icon: monthlySavings > 0 ? '📉' : '📈',
     title: monthlySavings > 0 ? 'Lower monthly cost by buying' : 'Lower monthly cost by renting',
-    description: `On average, ${monthlySavings > 0 ? 'buying' : 'renting'} costs ${formatInsightValue(Math.abs(monthlySavings))} less per month`,
+    description: `On average, ${monthlySavings > 0 ? 'buying' : 'renting'} costs ${formatInsightValue(Math.abs(monthlySavings), currencySymbol)} less per month`,
     value: monthlySavings,
     severity: monthlySavings > 0 ? 'positive' : 'negative',
   })
@@ -150,7 +178,7 @@ function generateInsights(params: InsightParams): Insight[] {
       type: 'equity',
       icon: '💰',
       title: 'Home equity',
-      description: `After ${holdingPeriodYears} years, you'd have ${formatInsightValue(equity)} in home equity`,
+      description: `After ${holdingPeriodYears} years, you'd have ${formatInsightValue(equity, currencySymbol)} in home equity`,
       value: equity,
       severity: 'positive',
     })
@@ -161,7 +189,7 @@ function generateInsights(params: InsightParams): Insight[] {
       type: 'investment',
       icon: '📊',
       title: 'Investment opportunity',
-      description: `Investing your down payment could grow to ${formatInsightValue(investmentReturn)}`,
+      description: `Investing your down payment could grow to ${formatInsightValue(investmentReturn, currencySymbol)}`,
       value: investmentReturn,
       severity: 'neutral',
     })
@@ -170,12 +198,12 @@ function generateInsights(params: InsightParams): Insight[] {
   return insights
 }
 
-function formatInsightValue(value: number): string {
+function formatInsightValue(value: number, symbol: string = '$'): string {
   if (Math.abs(value) >= 1_000_000) {
-    return `$${(value / 1_000_000).toFixed(1)}M`
+    return `${symbol}${(value / 1_000_000).toFixed(1)}M`
   }
   if (Math.abs(value) >= 1_000) {
-    return `$${(value / 1_000).toFixed(0)}K`
+    return `${symbol}${(value / 1_000).toFixed(0)}K`
   }
-  return `$${value.toFixed(0)}`
+  return `${symbol}${value.toFixed(0)}`
 }

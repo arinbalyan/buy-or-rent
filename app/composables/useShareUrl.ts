@@ -1,5 +1,6 @@
 import type { CalculatorInputs } from '~/types/calculator'
 import { DEFAULT_INPUTS } from '~/types/calculator'
+import { CURRENCIES } from '~/composables/useCurrency'
 
 const PARAM_MAP: Record<string, keyof CalculatorInputs> = {
   p: 'propertyPrice',
@@ -18,6 +19,8 @@ const PARAM_MAP: Record<string, keyof CalculatorInputs> = {
   maint: 'maintenanceCostPercent',
   ins: 'insurancePercent',
   hoa: 'monthlyHoaFees',
+  tax: 'taxRate',
+  rins: 'renterInsurancePercent',
 }
 
 export function useShareUrl() {
@@ -41,10 +44,21 @@ export function useShareUrl() {
     if (params.size === 0) return
 
     const updates: Partial<CalculatorInputs> = {}
+    const validCurrencyCodes = new Set(CURRENCIES.map(currency => currency.code))
     for (const [shortKey, longKey] of Object.entries(PARAM_MAP)) {
       const value = params.get(shortKey)
       if (value !== null) {
-        (updates as any)[longKey] = longKey === 'currency' ? value : Number.parseFloat(value)
+        if (longKey === 'currency') {
+          if (validCurrencyCodes.has(value)) {
+            (updates as any)[longKey] = value
+          }
+          continue
+        }
+
+        const parsed = Number.parseFloat(value)
+        if (Number.isFinite(parsed)) {
+          (updates as any)[longKey] = parsed
+        }
       }
     }
 

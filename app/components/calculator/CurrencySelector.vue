@@ -2,6 +2,8 @@
   <div class="relative">
     <button
       class="btn-ghost flex items-center gap-2 text-sm"
+      :aria-expanded="isOpen"
+      aria-haspopup="listbox"
       @click="isOpen = !isOpen"
     >
       <span>{{ currentCurrency.flag }}</span>
@@ -20,12 +22,16 @@
         v-model="search"
         type="text"
         placeholder="Search currencies..."
+        aria-label="Search currencies"
         class="input-field mb-2 text-sm"
+        @keydown="handleKeydown"
       />
-      <div class="max-h-64 overflow-y-auto">
+      <div class="max-h-64 overflow-y-auto" role="listbox">
         <button
-          v-for="currency in filteredCurrencies"
+          v-for="(currency, index) in filteredCurrencies"
           :key="currency.code"
+          role="option"
+          :aria-selected="currency.code === selectedCurrency"
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[rgb(var(--color-accent))]/10"
           :class="{ 'bg-[rgb(var(--color-accent))]/10': currency.code === selectedCurrency }"
           @click="selectCurrency(currency.code)"
@@ -66,5 +72,11 @@ watch(isOpen, (open) => {
 const selectCurrency = (code: string) => {
   selectedCurrency.value = code
   isOpen.value = false
+}
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    isOpen.value = false
+  }
 }
 </script>

@@ -11,5 +11,5 @@
 </template>
 
 <script setup lang="ts">
-const isDark = useDark()
+const { isDark } = useTheme()
 </script>

@@ -1,9 +1,11 @@
+const EPSILON = 1e-10
+
 export function calculateMortgagePayment(
   principal: number,
   annualRate: number,
   termYears: number,
 ): number {
-  if (annualRate === 0) return principal / (termYears * 12)
+  if (Math.abs(annualRate) < EPSILON) return principal / (termYears * 12)
   const monthlyRate = annualRate / 100 / 12
   const numPayments = termYears * 12
   return principal * (monthlyRate * (1 + monthlyRate) ** numPayments) / ((1 + monthlyRate) ** numPayments - 1)
@@ -48,16 +50,6 @@ export function calculateOpportunityCost(
   return principal * ((1 + annualReturnRate / 100) ** years - 1)
 }
 
-export function calculateMonthlyOpportunityCost(
-  monthlyAmount: number,
-  annualReturnRate: number,
-  months: number,
-): number {
-  const monthlyRate = annualReturnRate / 100 / 12
-  if (monthlyRate === 0) return monthlyAmount * months
-  return monthlyAmount * (((1 + monthlyRate) ** months - 1) / monthlyRate) - monthlyAmount * months
-}
-
 export interface BuyingInputs {
   propertyPrice: number
   downPaymentPercent: number
@@ -72,6 +64,7 @@ export interface BuyingInputs {
   maintenanceCostPercent: number
   insurancePercent: number
   monthlyHoaFees: number
+  taxRate?: number
 }
 
 export interface RentingInputs {
@@ -81,6 +74,7 @@ export interface RentingInputs {
   holdingPeriodYears: number
   propertyPrice: number
   downPaymentPercent: number
+  renterInsurancePercent?: number
 }
 
 export function calculateBuyingCosts(inputs: BuyingInputs) {
@@ -97,7 +91,11 @@ export function calculateBuyingCosts(inputs: BuyingInputs) {
   const initialCosts = downPayment + buyingClosingCosts
 
   const monthlyMortgage = calculateMortgagePayment(loanAmount, mortgageRate, mortgageTermYears)
-  const amortization = calculateAmortizationSchedule(loanAmount, mortgageRate, mortgageTermYears)
+  const amortization = calculateAmortizationSchedule(
+    loanAmount,
+    mortgageRate,
+    Math.min(mortgageTermYears, holdingPeriodYears),
+  )
 
   const holdingMonths = holdingPeriodYears * 12
   const monthlyPayments: number[] = []
@@ -113,10 +111,9 @@ export function calculateBuyingCosts(inputs: BuyingInputs) {
     const monthlyInsurance = (propertyPrice * insurancePercent / 100 / 12) * yearlyAppreciation
     const monthlyMaintenance = (propertyPrice * maintenanceCostPercent / 100 / 12) * yearlyAppreciation
 
-    const monthData = amortization[month] ?? amortization[amortization.length - 1]
-    const monthInterest = month > 0
-      ? amortization[month].interestPaid - amortization[month - 1].interestPaid
-      : amortization[0].interestPaid
+    const monthInterest = month < amortization.length
+      ? (month > 0 ? amortization[month].interestPaid - amortization[month - 1].interestPaid : amortization[0].interestPaid)
+      : 0
 
     totalMortgageInterest += monthInterest
     totalPropertyTax += monthlyPropertyTax
@@ -137,9 +134,8 @@ export function calculateBuyingCosts(inputs: BuyingInputs) {
   const remainingMortgage = loanAmount - (amortization[Math.min(holdingMonths - 1, amortization.length - 1)]?.principalPaid ?? 0)
   const netProceeds = salePrice - sellingCosts - remainingMortgage
 
-  const standardDeduction = 14600
-  const itemizedDeductions = totalMortgageInterest + Math.min(totalPropertyTax, 10000)
-  const taxSavings = itemizedDeductions > standardDeduction ? (itemizedDeductions - standardDeduction) * 0.22 : 0
+  const taxRate = inputs.taxRate ?? 0
+  const taxSavings = taxRate > 0 ? (totalMortgageInterest + totalPropertyTax) * (taxRate / 100) : 0
 
   const opportunityCost = calculateOpportunityCost(downPayment, investmentReturnRate, holdingPeriodYears)
 
@@ -160,7 +156,7 @@ export function calculateBuyingCosts(inputs: BuyingInputs) {
 export function calculateRentingCosts(inputs: RentingInputs) {
   const {
     monthlyRent, rentIncreaseRate, investmentReturnRate,
-    holdingPeriodYears, propertyPrice, downPaymentPercent,
+    holdingPeriodYears, propertyPrice, downPaymentPercent, renterInsurancePercent,
   } = inputs
 
   const downPayment = propertyPrice * downPaymentPercent / 100
@@ -171,10 +167,12 @@ export function calculateRentingCosts(inputs: RentingInputs) {
   const monthlyPayments: number[] = []
   let totalRecurring = 0
 
+  const insuranceRate = (renterInsurancePercent ?? 1) / 100
+
   for (let month = 0; month < holdingMonths; month++) {
     const year = Math.floor(month / 12)
     const currentRent = monthlyRent * (1 + rentIncreaseRate / 100) ** year
-    const renterInsurance = currentRent * 0.01
+    const renterInsurance = currentRent * insuranceRate
     const monthlyTotal = currentRent + renterInsurance
 
     monthlyPayments.push(monthlyTotal)
@@ -183,9 +181,12 @@ export function calculateRentingCosts(inputs: RentingInputs) {
 
   const investedSavings: number[] = []
   let cumulativeInvested = downPayment
-  for (let year = 1; year <= holdingPeriodYears; year++) {
-    cumulativeInvested *= (1 + investmentReturnRate / 100)
-    investedSavings.push(cumulativeInvested)
+  const monthlyReturnRate = investmentReturnRate / 100 / 12
+  for (let month = 0; month < holdingMonths; month++) {
+    cumulativeInvested *= (1 + monthlyReturnRate)
+    if ((month + 1) % 12 === 0) {
+      investedSavings.push(cumulativeInvested)
+    }
   }
 
   const opportunityCost = calculateOpportunityCost(downPayment, investmentReturnRate, holdingPeriodYears)

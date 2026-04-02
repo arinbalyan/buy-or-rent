@@ -1,6 +1,7 @@
 <template>
   <button
     class="btn-ghost flex items-center gap-2 text-sm"
+    aria-label="Share calculator results"
     @click="handleCopy"
   >
     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

@@ -21,11 +21,13 @@
 <script setup lang="ts">
 import { Doughnut } from 'vue-chartjs'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { formatAxisLabel } from '~/utils/chart-helpers'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const { result } = useCalculator()
 const { isDark } = useTheme()
+const { currentCurrency } = useCurrency()
 
 const buyingData = computed(() => ({
   labels: ['Initial', 'Recurring', 'Opportunity', 'Proceeds (saved)'],
@@ -76,9 +78,7 @@ const chartOptions = computed(() => ({
       callbacks: {
         label: (ctx: any) => {
           const v = ctx.raw as number
-          if (Math.abs(v) >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
-          if (Math.abs(v) >= 1e3) return `$${(v / 1e3).toFixed(0)}K`
-          return `$${v.toFixed(0)}`
+          return formatAxisLabel(v, currentCurrency.value.symbol)
         },
       },
     },

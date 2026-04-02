@@ -15,6 +15,8 @@ export interface CalculatorInputs {
   maintenanceCostPercent: number
   insurancePercent: number
   monthlyHoaFees: number
+  taxRate?: number
+  renterInsurancePercent?: number
 }
 
 export interface CalculationResult {
@@ -78,4 +80,6 @@ export const DEFAULT_INPUTS: CalculatorInputs = {
   maintenanceCostPercent: 1,
   insurancePercent: 0.5,
   monthlyHoaFees: 0,
+  taxRate: 0,
+  renterInsurancePercent: 1,
 }

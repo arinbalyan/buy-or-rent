@@ -20,6 +20,7 @@ const severityClass = computed(() => {
     case 'positive': return 'border-l-2 border-l-buy'
     case 'negative': return 'border-l-2 border-l-rent'
     case 'warning': return 'border-l-2 border-l-yellow-500'
+    case 'neutral': return 'border-l-2 border-l-gray-400 bg-gray-50/50 dark:bg-gray-800/50'
     default: return ''
   }
 })
