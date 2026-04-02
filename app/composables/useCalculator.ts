@@ -1,27 +1,10 @@
 import type { CalculatorInputs, CalculationResult, Insight } from '~/types/calculator'
+import { DEFAULT_INPUTS } from '~/types/calculator'
 import { calculateBreakEven, calculateBuyingCosts, calculateRentingCosts } from '~/utils/financial'
+import { formatCompactCurrency } from '~/utils/format'
 
 export function useCalculator() {
-  const inputs = useState<CalculatorInputs>('calculatorInputs', () => ({
-    propertyPrice: 500000,
-    monthlyRent: 2000,
-    currency: 'USD',
-    downPaymentPercent: 20,
-    mortgageRate: 6.5,
-    mortgageTermYears: 30,
-    holdingPeriodYears: 10,
-    propertyTaxRate: 1.2,
-    homeAppreciationRate: 3,
-    rentIncreaseRate: 3,
-    investmentReturnRate: 7,
-    buyingClosingCostPercent: 4,
-    sellingClosingCostPercent: 6,
-    maintenanceCostPercent: 1,
-    insurancePercent: 0.5,
-    monthlyHoaFees: 0,
-    taxRate: 0,
-    renterInsurancePercent: 1,
-  }))
+  const inputs = useState<CalculatorInputs>('calculatorInputs', () => ({ ...DEFAULT_INPUTS }))
   const { currentCurrency } = useCurrency()
 
   const result = computed<CalculationResult>(() => {
@@ -199,11 +182,5 @@ function generateInsights(params: InsightParams): Insight[] {
 }
 
 function formatInsightValue(value: number, symbol: string = '$'): string {
-  if (Math.abs(value) >= 1_000_000) {
-    return `${symbol}${(value / 1_000_000).toFixed(1)}M`
-  }
-  if (Math.abs(value) >= 1_000) {
-    return `${symbol}${(value / 1_000).toFixed(0)}K`
-  }
-  return `${symbol}${value.toFixed(0)}`
+  return formatCompactCurrency(value, symbol)
 }

@@ -60,7 +60,7 @@ export function useCurrency() {
     const code = currencyCode ?? selectedCurrency.value
     const currency = currencies.find(c => c.code === code) ?? currencies[0]
 
-    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US'
+    const locale = import.meta.client ? navigator.language : 'en-US'
 
     return new Intl.NumberFormat(locale, {
       style: 'currency',

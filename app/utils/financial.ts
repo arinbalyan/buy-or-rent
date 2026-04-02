@@ -144,7 +144,9 @@ export function calculateBuyingCosts(inputs: BuyingInputs) {
     recurringCosts: totalRecurring - taxSavings,
     opportunityCosts: opportunityCost,
     netProceeds,
-    totalCost: initialCosts + totalRecurring - taxSavings + opportunityCost - netProceeds,
+    // Net economic position: out-of-pocket costs minus sale proceeds
+    // Opportunity cost is reported separately for comparison insights
+    totalCost: initialCosts + totalRecurring - taxSavings - netProceeds,
     monthlyPayments,
     equityBuilt,
     taxSavings,
@@ -189,6 +191,10 @@ export function calculateRentingCosts(inputs: RentingInputs) {
     }
   }
 
+  // Renter invests the down payment they didn't spend on buying.
+  // investedSavings tracks what that down payment grows to over time.
+  // opportunityCost is reported for comparison but NOT added to totalCost
+  // since the renter actually HAS this money invested (unlike the buyer).
   const opportunityCost = calculateOpportunityCost(downPayment, investmentReturnRate, holdingPeriodYears)
   const netProceeds = securityDeposit
 
@@ -197,7 +203,9 @@ export function calculateRentingCosts(inputs: RentingInputs) {
     recurringCosts: totalRecurring,
     opportunityCosts: opportunityCost,
     netProceeds,
-    totalCost: initialCosts + totalRecurring + opportunityCost - netProceeds,
+    // Net economic position: rent payments minus deposit return
+    // The invested down payment is a positive offset (renter keeps it invested)
+    totalCost: initialCosts + totalRecurring - netProceeds - opportunityCost,
     monthlyPayments,
     investedSavings,
   }

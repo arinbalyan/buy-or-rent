@@ -50,14 +50,14 @@ export function useShareUrl() {
       if (value !== null) {
         if (longKey === 'currency') {
           if (validCurrencyCodes.has(value)) {
-            (updates as any)[longKey] = value
+            updates[longKey] = value as CalculatorInputs[typeof longKey]
           }
           continue
         }
 
         const parsed = Number.parseFloat(value)
         if (Number.isFinite(parsed)) {
-          (updates as any)[longKey] = parsed
+          updates[longKey] = parsed as CalculatorInputs[typeof longKey]
         }
       }
     }

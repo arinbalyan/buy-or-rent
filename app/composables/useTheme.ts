@@ -1,5 +1,12 @@
 export function useTheme() {
-  const isDark = useState('theme', () => false)
+  const isDark = useState('theme', () => {
+    if (import.meta.client) {
+      const saved = localStorage.getItem('theme')
+      if (saved === 'dark') return true
+      if (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) return true
+    }
+    return false
+  })
 
   const toggleDark = () => {
     isDark.value = !isDark.value
@@ -8,14 +15,6 @@ export function useTheme() {
       localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
     }
   }
-
-  onMounted(() => {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      isDark.value = true
-      document.documentElement.classList.add('dark')
-    }
-  })
 
   return { isDark, toggleDark }
 }

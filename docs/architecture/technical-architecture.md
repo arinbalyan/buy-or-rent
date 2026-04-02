@@ -1,93 +1,79 @@
 # Buy or Rent — Technical Architecture
 
-> Serverless Nuxt.js application with TypeScript, zero database, client-side calculations, and live currency support.
+> Serverless Nuxt 3 application with TypeScript, zero database, client-side calculations, and live currency support.
 
-**Version:** 1.0.0
-**Date:** 2026-03-29
-**Status:** Draft
+**Version:** 1.1.0
+**Date:** 2026-04-02
+**Status:** Implemented
 
 ---
 
 ## 1. Technology Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Framework** | Nuxt 4 (Vue 3) | SSR/SSG support, file-based routing, TypeScript-first |
-| **Language** | TypeScript 5.x | Type safety for financial calculations |
-| **Styling** | Tailwind CSS 4 | Utility-first, dark mode support, minimal bundle |
-| **Charts** | Chart.js + vue-chartjs | Lightweight, responsive, animated charts |
-| **Currency** | Intl.NumberFormat + ExchangeRate-API | Native formatting, free exchange rates |
-| **Build** | Vite (via Nuxt) | Fast HMR, optimized production builds |
-| **Hosting** | Vercel / Netlify / Cloudflare Pages | Free tier, edge deployment, zero config |
-| **Analytics** | None (privacy-first) | No tracking in v1 |
+| Layer | Technology | Version | Rationale |
+|-------|-----------|---------|-----------|
+| **Framework** | Nuxt 3 (Vue 3) | 3.16.2 | SSR support, file-based routing, TypeScript-first |
+| **Language** | TypeScript | 5.8.2 | Type safety for financial calculations |
+| **Styling** | Tailwind CSS 4 | via @nuxtjs/tailwindcss 6.13.2 | Utility-first, CSS variable theming, dark mode |
+| **Charts** | Chart.js + vue-chartjs | 4.4.7 / 5.3.2 | Bar, line, area, doughnut chart types |
+| **Currency** | Intl.NumberFormat + ExchangeRate-API | — | Native formatting, 45 currencies, free rates |
+| **Build** | Vite (via Nuxt) | — | Fast HMR, optimized production builds |
+| **Hosting** | Vercel (Nitro preset) | — | Serverless deployment, edge functions |
+| **Analytics** | None | — | Privacy-first, no tracking |
 
 ## 2. Project Structure
 
 ```
 buy-or-rent/
 ├── app/
+│   ├── app.vue                          # Root layout + theme wrapper
+│   ├── pages/
+│   │   └── index.vue                    # Single-page calculator layout
 │   ├── components/
 │   │   ├── calculator/
-│   │   │   ├── InputPanel.vue          # Main input form
-│   │   │   ├── AdvancedOptions.vue     # Collapsible advanced inputs
-│   │   │   ├── CurrencySelector.vue    # Currency dropdown with search
-│   │   │   └── SliderInput.vue         # Reusable slider + number input
+│   │   │   ├── InputPanel.vue           # Property price, rent, advanced options (collapsible)
+│   │   │   ├── CurrencySelector.vue     # Currency dropdown (45 currencies)
+│   │   │   └── SliderInput.vue          # Reusable slider + number input
 │   │   ├── dashboard/
-│   │   │   ├── VerdictCard.vue         # Buy/Rent recommendation
-│   │   │   ├── BreakEvenTimeline.vue   # Visual break-even indicator
-│   │   │   ├── TotalCostChart.vue      # Bar chart comparison
-│   │   │   ├── MonthlyCashFlow.vue     # Line chart over time
-│   │   │   ├── NetWorthProjection.vue  # Area chart equity vs invested
-│   │   │   └── CostBreakdown.vue       # Donut charts
+│   │   │   ├── VerdictCard.vue          # BUY/RENT recommendation + confidence
+│   │   │   ├── BreakEvenTimeline.vue    # Visual break-even indicator
+│   │   │   ├── TotalCostChart.vue       # Grouped bar chart
+│   │   │   ├── MonthlyCashFlow.vue      # Line chart over time
+│   │   │   ├── NetWorthProjection.vue   # Area chart
+│   │   │   └── CostBreakdown.vue        # Donut charts
 │   │   ├── insights/
-│   │   │   ├── InsightsPanel.vue       # Container for insight cards
-│   │   │   └── InsightCard.vue         # Single insight with icon
+│   │   │   ├── InsightsPanel.vue        # Insight cards container
+│   │   │   └── InsightCard.vue          # Single insight card
 │   │   ├── ui/
-│   │   │   ├── Card.vue                # Reusable card wrapper
-│   │   │   ├── Toggle.vue              # Dark/light mode toggle
-│   │   │   ├── Tooltip.vue             # Hover tooltip
-│   │   │   └── ShareButton.vue         # Share/export actions
+│   │   │   ├── Card.vue                 # Reusable card wrapper
+│   │   │   └── ShareButton.vue          # Copy shareable URL to clipboard
 │   │   └── layout/
-│   │       ├── AppHeader.vue           # Logo + currency + theme
-│   │       └── AppFooter.vue           # Attribution + methodology
+│   │       ├── AppHeader.vue            # Logo, currency slot, theme toggle
+│   │       └── AppFooter.vue            # Attribution + methodology
 │   ├── composables/
-│   │   ├── useCalculator.ts            # Core calculation engine
-│   │   ├── useCurrency.ts              # Currency formatting & conversion
-│   │   ├── useExchangeRates.ts         # Fetch & cache exchange rates
-│   │   ├── useInsights.ts              # Generate contextual insights
-│   │   ├── useShareUrl.ts              # URL encoding/decoding
-│   │   └── useTheme.ts                 # Dark/light mode management
+│   │   ├── useCalculator.ts             # Core engine + insight generation (inline)
+│   │   ├── useCurrency.ts               # 45 currencies + Intl formatting
+│   │   ├── useExchangeRates.ts          # ExchangeRate-API + localStorage cache
+│   │   ├── useShareUrl.ts               # URL encode/decode + clipboard copy
+│   │   └── useTheme.ts                  # Dark/light mode management
 │   ├── utils/
-│   │   ├── financial.ts                # Pure financial calculation functions
-│   │   ├── currencies.ts               # ISO 4217 currency data
-│   │   ├── formatters.ts               # Number/currency formatting helpers
-│   │   └── validators.ts               # Input validation
+│   │   ├── financial.ts                 # Pure calculation functions
+│   │   └── chart-helpers.ts             # Axis label formatting
 │   ├── types/
-│   │   ├── calculator.ts               # Calculator input/output types
-│   │   ├── currency.ts                 # Currency-related types
-│   │   └── insights.ts                 # Insight types
-│   ├── assets/
-│   │   └── css/
-│   │       └── main.css                # Tailwind + custom styles
-│   ├── pages/
-│   │   └── index.vue                   # Single page application
-│   ├── app.vue                         # Root component
-│   └── app.config.ts                   # App configuration
+│   │   ├── calculator.ts                # CalculatorInputs, CalculationResult, Insight, DEFAULT_INPUTS
+│   │   ├── currency.ts                  # Currency, ExchangeRates
+│   │   └── insights.ts                  # InsightType, InsightSeverity type aliases
+│   └── assets/css/
+│       └── main.css                     # Tailwind + CSS custom properties + component classes
 ├── server/
 │   └── api/
 │       └── rates/
-│           └── [base].get.ts           # Proxy for exchange rates (optional)
+│           └── [base].get.ts            # Exchange rate proxy (optional)
 ├── public/
-│   ├── favicon.ico
-│   └── og-image.png
+├── docs/
 ├── nuxt.config.ts
 ├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-└── docs/
-    ├── specs/
-    ├── architecture/
-    └── plans/
+└── package.json
 ```
 
 ## 3. Architecture Decisions
@@ -116,15 +102,15 @@ buy-or-rent/
 1. Page loads → Check localStorage for cached rates
 2. If cache hit AND < 24 hours old → Use cached rates
 3. If cache miss OR expired → Fetch from open.er-api.com/v6/latest/{base}
-4. If API fails → Fall back to hardcoded approximate rates for top 30 currencies
+4. If API fails → Fall back to hardcoded rates for 45 currencies
 5. Cache new rates in localStorage with timestamp
 ```
 
-**Rationale:**
-- Open access endpoint requires no API key
-- Rates update once per day, so 24-hour cache is optimal
-- localStorage is universally available and persists across sessions
-- Fallback rates ensure the app always works
+**Implementation:** `app/composables/useExchangeRates.ts`
+- Cache key: `bor_exchange_rates`
+- TTL: 24 hours
+- Fallback: 45 hardcoded rates in `FALLBACK_RATES` constant
+- Fetch triggered in `onMounted()` — skipped on server (`import.meta.server` guard)
 
 ### 3.3 Single Page Architecture (ADR-003)
 
@@ -133,7 +119,7 @@ buy-or-rent/
 **Rationale:**
 - Calculator is a single-purpose tool — no need for routing
 - Faster perceived performance (no page transitions)
-- Simpler state management (all reactive, no persistence needed)
+- Simpler state management (all reactive via `useState`)
 - Shareable state via URL query parameters
 
 ### 3.4 Chart Library Selection (ADR-004)
@@ -147,11 +133,22 @@ buy-or-rent/
 - Custom SVG — Too much development effort for v1
 
 **Rationale:**
-- 60KB gzipped (acceptable)
 - Excellent Vue 3 integration via vue-chartjs
 - Built-in animations and responsive behavior
 - Supports all needed chart types (bar, line, area, doughnut)
-- Tree-shakeable — only import needed chart types
+
+**Implementation detail:** Charts are wrapped in `<ClientOnly>` with loading fallback to prevent SSR hydration mismatches:
+
+```vue
+<ClientOnly>
+  <TotalCostChart />
+  <template #fallback>
+    <div class="card flex h-56 items-center justify-center">
+      <span class="animate-pulse-soft text-sm">Loading chart...</span>
+    </div>
+  </template>
+</ClientOnly>
+```
 
 ### 3.5 Styling Approach (ADR-005)
 
@@ -159,205 +156,319 @@ buy-or-rent/
 
 **Rationale:**
 - Utility-first = rapid development, no CSS file juggling
-- Built-in dark mode support (`dark:` variant)
-- Minimal production bundle (purgeCSS built-in)
-- Consistent spacing/color system
-- CSS variables for chart colors enable theme switching
+- Dark mode via `class` strategy (manual toggle)
+- CSS variables for all colors enable instant theme switching without rebuild
+- Custom component classes (`.card`, `.input-field`, `.btn-primary`, `.btn-ghost`) defined in `@layer components`
 
-## 4. Data Flow
+## 4. Component Hierarchy
 
 ```
-User Input (reactive)
-       │
-       ▼
-┌─────────────────┐
-│  useCalculator   │ ← useCurrency (formatting)
-│  composable      │ ← useExchangeRates (conversion)
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Calculation     │ ← financial.ts (pure functions)
-│  Result Object   │
-└────────┬────────┘
-         │
-    ┌────┴────┬──────────┬──────────┐
-    ▼         ▼          ▼          ▼
-Verdict   Charts    Insights    Share URL
-Card      (4x)     Panel       (encoded)
+app.vue
+├── AppHeader
+│   ├── Logo + title
+│   ├── CurrencySelector (slot)
+│   └── Theme toggle button
+├── NuxtPage → pages/index.vue
+│   ├── InputPanel (sticky sidebar, lg:col-span-4)
+│   │   ├── Property price input + slider
+│   │   ├── Monthly rent input + slider
+│   │   ├── AdvancedOptions (collapsible section)
+│   │   │   └── 12× SliderInput components
+│   │   │   └── HOA fees input
+│   │   │   └── Reset to defaults button
+│   │   ├── CurrencySelector
+│   │   └── ShareButton
+│   └── Dashboard (main content, lg:col-span-8)
+│       ├── VerdictCard
+│       ├── BreakEvenTimeline
+│       ├── Chart grid (2×2)
+│       │   ├── TotalCostChart (ClientOnly)
+│       │   ├── MonthlyCashFlow (ClientOnly)
+│       │   ├── NetWorthProjection (ClientOnly)
+│       │   └── CostBreakdown (ClientOnly)
+│       └── InsightsPanel
+│           └── InsightCard × N
+└── AppFooter
 ```
 
-### 4.1 Calculation Result Object
+## 5. Composable Relationships
+
+```
+useCalculator (core engine)
+├── useState<CalculatorInputs>('calculatorInputs')  ← shared reactive state
+├── useCurrency()                                   ← formatting, currency metadata
+│   └── useState('currency')                        ← selected currency code
+├── useExchangeRates()                              ← rates, conversion
+│   └── useState<ExchangeRates>('exchangeRates')    ← cached rates
+├── financial.ts                                    ← pure functions
+│   ├── calculateBuyingCosts()
+│   ├── calculateRentingCosts()
+│   └── calculateBreakEven()
+└── generateInsights() [private]                    ← contextual insight generation
+
+useShareUrl
+├── useState<CalculatorInputs>('calculatorInputs')  ← reads/writes shared state
+├── DEFAULT_INPUTS                                  ← diff-based URL encoding
+└── CURRENCIES                                      ← currency validation
+
+useTheme
+└── useState('theme')                               ← dark mode boolean
+```
+
+### State Sharing Pattern
+
+All composables share state through Nuxt's `useState()`, which is SSR-safe and automatically scoped to the request on server and to the session on client:
+
+```ts
+// Shared across all composables
+const inputs = useState<CalculatorInputs>('calculatorInputs', () => ({
+  propertyPrice: 500000,
+  monthlyRent: 2000,
+  currency: 'USD',
+  // ... 15 more fields
+}))
+```
+
+### Reactive Calculation Pipeline
+
+The `result` computed property in `useCalculator` is the single source of truth:
+
+```ts
+const result = computed<CalculationResult>(() => {
+  const buying = calculateBuyingCosts(inputs.value)
+  const renting = calculateRentingCosts(inputs.value)
+  const breakEvenMonth = calculateBreakEven(cumulativeBuying, cumulativeRenting)
+  const insights = generateInsights({ verdict, totalSavings, ... })
+  return { verdict, confidence, buying, renting, comparison, insights }
+})
+```
+
+Any input change triggers full recalculation. No debouncing is applied — Vue's reactivity handles update batching.
+
+## 6. Data Flow
+
+```
+User Input (reactive inputs)
+        │
+        ▼
+┌──────────────────────────────────────────┐
+│  useCalculator.computed<CalculationResult>│
+│  ┌────────────────────────────────────┐  │
+│  │  calculateBuyingCosts()            │  │
+│  │  calculateRentingCosts()           │  │
+│  │  calculateBreakEven()              │  │
+│  │  generateInsights()                │  │
+│  └────────────────────────────────────┘  │
+└────────────┬─────────────────────────────┘
+             │
+     ┌───────┼──────────┬──────────┬──────────┐
+     ▼       ▼          ▼          ▼          ▼
+  Verdict  Charts     Insights   BreakEven  Share URL
+  Card     (4×)       Panel      Timeline   (encoded)
+```
+
+### 6.1 Calculation Result Object
 
 ```typescript
+// app/types/calculator.ts
 interface CalculationResult {
   verdict: 'buy' | 'rent'
-  confidence: number // 0-100
+  confidence: number            // 0-100, based on savings ratio
   breakEvenYears: number | null // null if renting always wins
-  
-  buying: {
-    totalCost: number
-    initialCosts: number
-    recurringCosts: number
-    opportunityCosts: number
-    netProceeds: number
-    monthlyPayments: number[] // per month over holding period
-    equityBuilt: number[] // per year
+
+  buying: CostBreakdown & {
+    monthlyPayments: number[]   // per month over holding period
+    equityBuilt: number[]       // per year
     taxSavings: number
+    salePrice: number
+    remainingMortgage: number
   }
-  
-  renting: {
-    totalCost: number
-    initialCosts: number
-    recurringCosts: number
-    opportunityCosts: number
-    netProceeds: number
-    monthlyPayments: number[] // per month over holding period
-    investedSavings: number[] // per year
+
+  renting: CostBreakdown & {
+    monthlyPayments: number[]   // per month over holding period
+    investedSavings: number[]   // per year
   }
-  
+
   comparison: {
-    totalSavings: number // positive = buying saves money
-    monthlySavings: number // positive = buying cheaper monthly
+    totalSavings: number        // positive = buying saves money
+    monthlySavings: number      // positive = buying cheaper monthly
     breakEvenMonth: number | null
   }
-  
+
   insights: Insight[]
 }
-```
 
-## 5. API Design
-
-### 5.1 Exchange Rate Endpoint (Server Route — Optional)
-
-The app can work entirely client-side, but a server route provides a proxy to avoid CORS issues and add caching:
-
-```
-GET /api/rates/[base]
-```
-
-**Response:**
-```json
-{
-  "base": "USD",
-  "rates": { "EUR": 0.92, "GBP": 0.81, ... },
-  "lastUpdated": "2026-03-29T00:00:00Z"
+interface CostBreakdown {
+  totalCost: number
+  initialCosts: number
+  recurringCosts: number
+  opportunityCosts: number
+  netProceeds: number
 }
 ```
 
-**Implementation:** Nitro server route that proxies to `open.er-api.com` and caches at edge.
+## 7. SSR vs Client Boundaries
 
-### 5.2 URL Share Format
+### Server-Side (SSR)
 
+| What | Why |
+|------|-----|
+| HTML shell rendering | Fast initial paint, SEO meta tags |
+| `nuxt.config.ts` head config | OG tags, font preconnect, theme detection script |
+| Server API route `/api/rates/[base]` | Optional proxy for exchange rates |
+
+### Client-Side Only
+
+| What | Mechanism |
+|------|-----------|
+| All chart components | `<ClientOnly>` wrapper with loading fallback |
+| Financial calculations | `computed()` triggers on client after hydration |
+| Exchange rate fetching | `onMounted()` guard + `import.meta.server` check |
+| URL decode from query params | `onMounted()` + `window.location.search` |
+| Theme detection | `onMounted()` reads `localStorage` + `matchMedia` |
+| Clipboard copy | `navigator.clipboard.writeText()` |
+| localStorage caching | Browser-only API |
+
+### Theme Flash Prevention
+
+A critical inline script runs before paint to apply dark mode class:
+
+```ts
+// nuxt.config.ts — injected at bodyClose, critical priority
+innerHTML: `if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')`
 ```
-/?p=500000&r=2000&c=USD&dp=20&rate=6.5&term=30&stay=10&ptax=1.2&app=3&ri=3&inv=7&ccbuy=4&ccsell=6&maint=1&ins=0.5&hoa=0
+
+This prevents the flash of light mode on dark-mode-preferring browsers.
+
+## 8. API Routes
+
+### 8.1 Exchange Rate Proxy
+
+**Route:** `GET /api/rates/[base]`
+
+**File:** `server/api/rates/[base].get.ts`
+
+```ts
+export default defineEventHandler(async (event) => {
+  const base = getRouterParam(event, 'base') ?? 'USD'
+  const response = await fetch(`https://open.er-api.com/v6/latest/${base}`)
+  const data = await response.json()
+  return { base, rates: data.rates, lastUpdated: new Date().toISOString() }
+})
 ```
 
-All parameters are short codes to minimize URL length. Values are decoded on page load and populate the calculator.
+**Note:** The current client implementation (`useExchangeRates.ts`) fetches directly from `open.er-api.com` rather than using this proxy. The server route is available as an optional fallback for CORS-restricted environments.
 
-## 6. Performance Strategy
+### 8.2 URL Share Parameters
 
-### 6.1 Bundle Optimization
+**File:** `app/composables/useShareUrl.ts`
 
-- **Lazy load charts**: Chart components loaded only when dashboard scrolls into view
-- **Tree-shake Chart.js**: Import only needed chart types (BarController, LineController, etc.)
-- **Dynamic currency data**: Load full currency list on demand, show top 20 initially
-- **Code splitting**: Nuxt automatic route-based splitting (single route = single chunk)
+All inputs are encoded as short query parameters. Only non-default values are included:
 
-### 6.2 Rendering Strategy
+| Param | Field | Example |
+|-------|-------|---------|
+| `p` | propertyPrice | `500000` |
+| `r` | monthlyRent | `2000` |
+| `c` | currency | `USD` |
+| `dp` | downPaymentPercent | `20` |
+| `rate` | mortgageRate | `6.5` |
+| `term` | mortgageTermYears | `30` |
+| `stay` | holdingPeriodYears | `10` |
+| `ptax` | propertyTaxRate | `1.2` |
+| `app` | homeAppreciationRate | `3` |
+| `ri` | rentIncreaseRate | `3` |
+| `inv` | investmentReturnRate | `7` |
+| `ccbuy` | buyingClosingCostPercent | `4` |
+| `ccsell` | sellingClosingCostPercent | `6` |
+| `maint` | maintenanceCostPercent | `1` |
+| `ins` | insurancePercent | `0.5` |
+| `hoa` | monthlyHoaFees | `0` |
+| `tax` | taxRate | `0` |
+| `rins` | renterInsurancePercent | `1` |
 
-- **SSG with client hydration**: Pre-render the shell at build time, hydrate with live calculations
-- **Critical CSS inlined**: Tailwind purges unused styles, critical CSS inlined in head
-- **Font loading**: `font-display: swap` for Inter, preload critical weights
+**Example URL:**
+```
+/?p=750000&r=3000&dp=25&rate=5.5&stay=15&inv=8
+```
 
-### 6.3 Caching Strategy
+Decoding validates currency codes against the `CURRENCIES` list and parses all numeric values with `Number.parseFloat`.
 
-| Resource | Cache Strategy |
+## 9. Performance Strategy
+
+### 9.1 Rendering
+
+| Strategy | Implementation |
 |----------|---------------|
-| HTML | `no-cache` (always fresh) |
-| JS/CSS | Immutable with content hash |
-| Exchange rates | localStorage, 24h TTL |
-| Currency list | localStorage, 7d TTL |
-| Fonts | `cache-control: max-age=31536000` |
+| SSR for initial HTML | `ssr: true` in nuxt.config.ts |
+| Client-only charts | `<ClientOnly>` prevents SSR hydration mismatch |
+| Theme script before paint | Inline script at `bodyClose` with `critical` priority |
+| Font preconnect | `<link rel="preconnect">` for Google Fonts |
+| `font-display: swap` | Prevents FOIT for Inter font |
 
-## 7. Deployment Architecture
+### 9.2 Caching
+
+| Resource | Strategy |
+|----------|----------|
+| Exchange rates | localStorage, 24h TTL |
+| Theme preference | localStorage, persistent |
+| Calculator state | `useState()` (in-memory, per session) |
+| Static assets | Vercel CDN (immutable with content hash) |
+
+### 9.3 Bundle Considerations
+
+- Chart.js is the largest dependency (~60KB gzipped)
+- All charts wrapped in `<ClientOnly>` — not included in SSR payload
+- Single route = single JS chunk (no route-based code splitting benefit)
+- Tailwind purges unused utilities at build time
+
+## 10. Security Considerations
+
+| Concern | Mitigation |
+|---------|-----------|
+| XSS via URL params | Currency codes validated against whitelist; numeric values parsed with `Number.parseFloat` |
+| API rate limiting | 24h localStorage cache minimizes external requests |
+| No user data | No forms submit data, no cookies, no PII in localStorage |
+| Supply chain | Lockfile (`bun.lock`, `package-lock.json`), pinned versions |
+| External font loading | Google Fonts via preconnect, `crossorigin` on gstatic |
+
+## 11. Deployment Architecture
 
 ```
 ┌─────────────────────────────────────────────┐
-│                 CDN Edge                     │
-│  (Vercel / Netlify / Cloudflare Pages)      │
+│                 Vercel Edge                  │
 │                                              │
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
 │  │  HTML    │  │  JS     │  │  CSS    │     │
-│  │  (SSG)   │  │ (hashed)│  │ (hashed)│     │
+│  │  (SSR)   │  │ (chunk) │  │ (chunk) │     │
 │  └─────────┘  └─────────┘  └─────────┘     │
 │                                              │
 │  ┌─────────────────────────────────────┐    │
 │  │  Server Route (optional)            │    │
-│  │  /api/rates/[base] → Edge Function  │    │
+│  │  /api/rates/[base] → Serverless Fn  │    │
 │  └─────────────────────────────────────┘    │
 └─────────────────────────────────────────────┘
-                      │
-                      ▼
-            ┌─────────────────┐
-            │ ExchangeRate-API │
-            │ (open.er-api.com)│
-            └─────────────────┘
+                       │
+                       ▼
+             ┌─────────────────┐
+             │ ExchangeRate-API │
+             │ (open.er-api.com)│
+             └─────────────────┘
 ```
 
-### 7.1 Build Configuration
+### Build Configuration
 
 ```typescript
-// nuxt.config.ts
+// nuxt.config.ts (actual)
 export default defineNuxtConfig({
-  ssr: true, // SSG mode with nuxt generate
-  nitro: {
-    preset: 'vercel', // or 'netlify', 'cloudflare-pages'
-  },
-  app: {
-    head: {
-      title: 'Buy or Rent — Property Decision Calculator',
-      meta: [
-        { name: 'description', content: 'Instant buy vs rent property calculator with multi-currency support' },
-        { property: 'og:title', content: 'Buy or Rent — Property Decision Calculator' },
-        { property: 'og:description', content: 'Should you buy or rent? Get instant financial insights.' },
-        { property: 'og:image', content: '/og-image.png' },
-      ],
-      link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' },
-      ],
-    },
-  },
-  modules: ['@nuxtjs/tailwindcss'],
-  compatibilityDate: '2026-03-29',
+  compatibilityDate: '2025-05-15',
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint'],
+  ssr: true,
+  nitro: { preset: 'vercel' },
+  tailwindcss: { cssPath: '~/assets/css/main.css' },
+  eslint: { config: { stylistic: true } },
+  // ...app head config
 })
 ```
-
-## 8. Security Considerations
-
-| Concern | Mitigation |
-|---------|-----------|
-| XSS via URL params | Sanitize all decoded query parameters |
-| API rate limiting | Cache aggressively, respect rate limits |
-| No user data | No forms submit data, no cookies, no localStorage PII |
-| Supply chain | Pin dependency versions, use lockfile |
-| CSP | Strict Content-Security-Policy via hosting provider |
-
-## 9. Testing Strategy
-
-| Layer | Tool | Coverage Target |
-|-------|------|----------------|
-| Unit tests | Vitest | 90%+ for financial calculations |
-| Component tests | Vitest + Vue Test Utils | All interactive components |
-| E2E tests | Playwright | Critical user flows |
-| Visual regression | Playwright screenshots | Dashboard layouts |
-
-## 10. Monitoring & Observability
-
-- **Performance**: Web Vitals reported via `web-vitals` library (client-side only, no server)
-- **Errors**: Console error tracking (no external service in v1)
-- **Uptime**: Static hosting = inherently high uptime, monitor via hosting provider
 
 ---
 

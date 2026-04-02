@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import type { TooltipItem } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { formatAxisLabel } from '~/utils/chart-helpers'
@@ -76,7 +77,7 @@ const chartOptions = computed(() => ({
     },
     tooltip: {
       callbacks: {
-        label: (ctx: any) => {
+        label: (ctx: TooltipItem<'doughnut'>) => {
           const v = ctx.raw as number
           return formatAxisLabel(v, currentCurrency.value.symbol)
         },

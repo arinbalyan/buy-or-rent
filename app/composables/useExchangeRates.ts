@@ -43,7 +43,7 @@ export function useExchangeRates() {
         }
       }
 
-      const response = await fetch(`https://open.er-api.com/v6/latest/${base}`)
+      const response = await $fetch(`/api/rates/${base}`)
       if (!response.ok) throw new Error('Failed to fetch exchange rates')
 
       const data = await response.json()
